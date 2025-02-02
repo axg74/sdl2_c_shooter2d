@@ -4,8 +4,11 @@ Horizontal 2D shoot em up game with the help of SDL2-lib and plain C.
 
 ## tool chain
 
-    Codeblocks IDE
+    Codeblocks IDE for the C-Project
+    VSCode and Git Graph extension to interact with GitHub
+    Github issue tracker
     Aseprite
     Git
     Tiled
-    Renoise
+    Protracker 2.3d for Windows
+    Python for some tools
