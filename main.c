@@ -2,8 +2,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-//const int TILE_SIZE = 16;
-
 const int GAME_WIDTH = 368;
 const int GAME_HEIGHT = 240;
 const int GAME_SCALE = 3;
