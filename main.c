@@ -22,11 +22,13 @@ void check_events(void);
 void check_keyboard(int keycode, bool flag);
 bool init_screen(int width, int height, int scale);
 
-bool keydown_back();
-bool keydown_up();
-bool keydown_down();
-bool keydown_left();
-bool keydown_right();
+bool keydown_back(void);
+bool keydown_up(void);
+bool keydown_down(void);
+bool keydown_left(void);
+bool keydown_right(void);
+bool keydown_fire1(void);
+bool keydown_fire2(void);
 
 void cls(int red, int green, int blue);
 void flip(void);
@@ -423,6 +425,14 @@ void check_keyboard(int keycode, bool flag)
         case SDLK_DOWN:
             game_input.down = flag;
             break;
+
+        case SDLK_d:
+            game_input.fire1 = flag;
+            break;
+
+        case SDLK_f:
+            game_input.fire2 = flag;
+            break;
     }
 }
 
@@ -461,6 +471,16 @@ bool keydown_up()
 bool keydown_down()
 {
     return game_input.down;
+}
+
+bool keydown_fire1()
+{
+    return game_input.fire1;
+}
+
+bool keydown_fire2()
+{
+    return game_input.fire2;
 }
 
 // ############################################################################
