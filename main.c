@@ -2,6 +2,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#define MAX_PLAYER_BULLETS 30
+
 const int GAME_WIDTH = 368;
 const int GAME_HEIGHT = 240;
 const int GAME_SCALE = 3;
@@ -39,6 +41,9 @@ void delta_time_init(void);
 void delta_time_update(void);
 
 void player_init(void);
+void player_init_bullets(void);
+void player_create_bullet(int type, int x, int y);
+void player_draw_bullets(void);
 
 // ############################################################################
 
@@ -86,6 +91,8 @@ typedef struct
     float speed_y;
     int dir_x;
     int dir_y;
+    int type;
+    int user_value1_float;
     SDL_Texture *texture;
 } Sprite;
 
@@ -130,6 +137,7 @@ Input game_input;
 // ############################################################################
 // game sprite objects
 Sprite player_sprite;
+Sprite player_sprite_bullets[MAX_PLAYER_BULLETS];
 
 // ############################################################################
 
@@ -158,10 +166,13 @@ int main(int argc, char *argv[])
 // ############################################################################
 void player_init()
 {
-    float speed = 60.0f;
+    float speed = 80.0f;
+
+    player_sprite.user_value1_float = -1.0f;
 
     sprite_init(&player_sprite, 100.0f, 100.0f, 24, 16, spritesheet, 48, 16);
     sprite_set_speed(&player_sprite, speed, speed);
+    player_init_bullets();
 }
 
 void player_draw()
@@ -173,6 +184,7 @@ void player_update()
 {
     float dx = 0, dy = 0;
 
+    // player movement
     if (keydown_right()) dx = 1;
     if (keydown_left()) dx = -1;
     if (keydown_up()) dy = -1;
@@ -185,6 +197,88 @@ void player_update()
     if (player_sprite.y < 0) player_sprite.y = 0;
     if (player_sprite.x + player_sprite.width > GAME_WIDTH) player_sprite.x = GAME_WIDTH - player_sprite.width;
     if (player_sprite.y + player_sprite.height > GAME_HEIGHT) player_sprite.y = GAME_HEIGHT - player_sprite.height;
+
+    // player actions like shooting
+    player_sprite.user_value1_float -= 80.0f * delta_time;
+    if (player_sprite.user_value1_float < 0 && keydown_fire1())
+    {
+        player_sprite.user_value1_float = 20.0f;
+        player_create_bullet(1, player_sprite.x, player_sprite.y);
+
+    }
+}
+
+// ############################################################################
+// PLAYER BULLET FUNCTIONS
+// ############################################################################
+void player_init_bullets()
+{
+    // deactivate player all bullets
+    for (int i = 0; i < MAX_PLAYER_BULLETS; i++)
+    {
+        player_sprite_bullets[i].active = false;
+        player_sprite_bullets[i].texture = spritesheet;
+    }
+}
+
+void player_create_bullet(int type, int x, int y)
+{
+    int bullet_id = -1;
+
+    // find a empty player-bullet-sprite
+    for (int i = 0; i < MAX_PLAYER_BULLETS; i++)
+    {
+        if (!player_sprite_bullets[i].active)
+        {
+            // init common values for a player bullet
+            player_sprite_bullets[i].active = true;
+            player_sprite_bullets[i].type = type;
+
+            bullet_id = i;
+            break;
+        }
+    }
+
+    if (bullet_id < 0) return;
+
+    // init specific values for a player bullet
+    switch (type)
+    {
+       case 1:
+            sprite_init(&player_sprite_bullets[bullet_id], x + 16, y + 6, 14, 7, NULL, 48, 0);
+            player_sprite_bullets[bullet_id].speed_x = 500;
+            player_sprite_bullets[bullet_id].dir_x = 1;
+            break;
+    }
+}
+
+void player_draw_bullets()
+{
+    for (int i = 0; i < MAX_PLAYER_BULLETS; i++)
+    {
+        draw_sprite(&player_sprite_bullets[i]);
+    }
+}
+
+void player_update_bullets()
+{
+    for (int i = 0; i < MAX_PLAYER_BULLETS; i++)
+    {
+        if (!player_sprite_bullets[i].active) continue;
+
+        switch(player_sprite_bullets[i].type)
+        {
+            case 1:
+                break;
+        }
+
+        player_sprite_bullets[i].x += player_sprite_bullets[i].speed_x * player_sprite_bullets[i].dir_x * delta_time;
+
+        if (player_sprite_bullets[i].x > game_screen.width)
+        {
+            player_sprite_bullets[i].active = false;
+        }
+    }
 }
 
 // ############################################################################
@@ -214,7 +308,10 @@ void game_draw()
     cls(0, 0, 100);
 
     tilemap_draw();
+
+    player_draw_bullets();
     player_draw();
+
     draw_backbuffer();
     flip();
 }
@@ -223,6 +320,7 @@ void game_draw()
 void game_update()
 {
     player_update();
+    player_update_bullets();
 }
 
 // GAME-LOOP
@@ -510,6 +608,7 @@ bool keydown_fire2()
 // ############################################################################
 // GAME-SPRITE FUNCTIONS
 // ############################################################################
+// when "texture" is NULL the texture will not be set!
 void sprite_init(Sprite *spr, float x, float y, int width, int height, SDL_Texture *texture, int source_x, int source_y)
 {
     spr->active = true;
@@ -517,7 +616,7 @@ void sprite_init(Sprite *spr, float x, float y, int width, int height, SDL_Textu
     spr->y = y;
     spr->width = width;
     spr->height = height;
-    spr->texture = texture;
+    if (texture != NULL) spr->texture = texture;
     spr->source_x = source_x;
     spr->source_y = source_y;
 }
