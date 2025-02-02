@@ -121,6 +121,7 @@ SDL_Texture *tilesheet;
 Tilemap tilemap;
 
 void tilemap_init(int width, int height, SDL_Texture *texture);
+bool tilemap_load(const char *filename);
 void tilemap_draw(void);
 
 // ############################################################################
@@ -203,6 +204,8 @@ bool game_preload()
 
     tilesheet = load_bmp("data/tilesheet1.bmp");
     if (tilesheet == NULL) return false;
+
+    tilemap_load("level1.tmx");
 
     return true;
 }
@@ -590,6 +593,11 @@ void tilemap_init(int width, int height, SDL_Texture *texture)
         }
     }
 
+}
+
+bool tilemap_load(const char *filename)
+{
+    return true;
 }
 
 void tilemap_draw()
