@@ -86,6 +86,8 @@ typedef struct
     float speed_y;
     int dir_x;
     int dir_y;
+    int type;
+    int user_value1_float;
     SDL_Texture *texture;
 } Sprite;
 
@@ -99,12 +101,16 @@ void sprite_set_speed(Sprite *spr, float x, float y);
 // tilemap structures and data
 typedef struct
 {
-    int x;
-    int y;
+    // current position in pixel
+    float x;
+    float y;
+
+    // size in tiles
     int width;
     int height;
 
     SDL_Texture *texture;
+
     int tilesize;
     int tilesheet_width;
     int tilesheet_height;
@@ -222,6 +228,12 @@ void game_draw()
 // UPDATING THE GAME
 void game_update()
 {
+    // scrolling
+    if (tilemap.x - (tilemap.width * tilemap.tilesize) < (tilemap.width * tilemap.tilesize))
+    {
+        tilemap.x += 15 * delta_time;
+    }
+
     player_update();
 }
 
@@ -510,6 +522,7 @@ bool keydown_fire2()
 // ############################################################################
 // GAME-SPRITE FUNCTIONS
 // ############################################################################
+// when "texture" is NULL the texture will not be set!
 void sprite_init(Sprite *spr, float x, float y, int width, int height, SDL_Texture *texture, int source_x, int source_y)
 {
     spr->active = true;
@@ -517,7 +530,7 @@ void sprite_init(Sprite *spr, float x, float y, int width, int height, SDL_Textu
     spr->y = y;
     spr->width = width;
     spr->height = height;
-    spr->texture = texture;
+    if (texture != NULL) spr->texture = texture;
     spr->source_x = source_x;
     spr->source_y = source_y;
 }
@@ -547,9 +560,9 @@ void delta_time_update()
 // ############################################################################
 void tilemap_init(int width, int height, SDL_Texture *texture)
 {
-    // current position of the tilemap
-    tilemap.x = 0;
-    tilemap.y = 0;
+    // current position of the tilemap in pixel
+    tilemap.x = 0.0f;
+    tilemap.y = 0.0f;
 
     // size of the tilemap
     tilemap.width = width;
@@ -584,14 +597,20 @@ void tilemap_draw()
     int tile_id = 2;
     int tile_x, tile_y;
 
+    int soft_scroll_x = (int) tilemap.x % tilemap.tilesize;
+
     for (int y = 0; y < game_screen.height / tilemap.tilesize; y++)
     {
-        for (int x = 0; x < game_screen.width / tilemap.tilesize; x++)
+        for (int x = 0; x < game_screen.width / tilemap.tilesize + 1; x++)
         {
             tile_x = tilemap.tile_postab[tile_id * 2];
             tile_y = tilemap.tile_postab[tile_id * 2 + 1];
 
-            draw_subimage_rect(tilemap.texture, x * tilemap.tilesize, y * tilemap.tilesize, tilemap.tilesize, tilemap.tilesize, tile_x, tile_y);
+            draw_subimage_rect(tilemap.texture,
+                               (x * tilemap.tilesize) - soft_scroll_x,
+                               y * tilemap.tilesize, tilemap.tilesize,
+                               tilemap.tilesize,
+                               tile_x, tile_y);
         }
     }
 }
