@@ -445,7 +445,11 @@
 	"begin_code.h"
 	"close_code.h"
 
+<<<<<<< HEAD
 1738512795 source:c:\users\alexa\documents\gamedev\sdl\sdl2_c_shooter2d\main.c
+=======
+1738509258 source:c:\users\alexa\documents\gamedev\sdl\sdl2_c_shooter2d\main.c
+>>>>>>> feature/basic-game-engine
 	<SDL.h>
 	<stdbool.h>
 	<stdio.h>
