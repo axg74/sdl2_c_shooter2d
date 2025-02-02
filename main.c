@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
 // ############################################################################
 void player_init()
 {
-    float speed = 80.0f;
+    float speed = 60.0f;
 
     sprite_init(&player_sprite, 100.0f, 100.0f, 24, 16, spritesheet, 48, 16);
     sprite_set_speed(&player_sprite, speed, speed);
@@ -149,25 +149,10 @@ void player_update()
 {
     float dx = 0, dy = 0;
 
-    if (keydown_right())
-    {
-        dx = 1;
-    }
-
-    if (keydown_left())
-    {
-        dx = -1;
-    }
-
-    if (keydown_up())
-    {
-        dy = -1;
-    }
-
-    if (keydown_down())
-    {
-        dy = 1;
-    }
+    if (keydown_right()) dx = 1;
+    if (keydown_left()) dx = -1;
+    if (keydown_up()) dy = -1;
+    if (keydown_down()) dy = 1;
 
     player_sprite.x += dx * player_sprite.speed_x * delta_time;
     player_sprite.y += dy * player_sprite.speed_y * delta_time;
