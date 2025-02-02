@@ -2,11 +2,11 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-const int TILE_SIZE = 16;
+//const int TILE_SIZE = 16;
 
-const int GAME_WIDTH = 20 * TILE_SIZE;
-const int GAME_HEIGHT = 15 * TILE_SIZE;
-const int GAME_SCALE = 4;
+const int GAME_WIDTH = 368;
+const int GAME_HEIGHT = 240;
+const int GAME_SCALE = 3;
 
 // ############################################################################
 
@@ -74,7 +74,7 @@ typedef struct
 } Input;
 
 // ############################################################################
-
+// sprite structures and data
 typedef struct
 {
     bool active;
@@ -91,22 +91,46 @@ typedef struct
     SDL_Texture *texture;
 } Sprite;
 
+SDL_Texture *spritesheet;
+
 void sprite_init(Sprite *spr, float x, float y, int width, int height, SDL_Texture *texture, int source_x, int source_y);
 void draw_sprite(Sprite *spr);
 void sprite_set_speed(Sprite *spr, float x, float y);
 
 // ############################################################################
+// tilemap structures and data
+typedef struct
+{
+    int x;
+    int y;
+    int width;
+    int height;
 
-SDL_Texture *spritesheet;
+    SDL_Texture *texture;
+    int tilesize;
+    int tilesheet_width;
+    int tilesheet_height;
+    int tile_postab[1024 * 2];
+} Tilemap;
+
 SDL_Texture *tilesheet;
+Tilemap tilemap;
+
+void tilemap_init(int width, int height, SDL_Texture *texture);
+void tilemap_draw(void);
 
 // ############################################################################
-
+// delta timing
 float delta_time;
 float delta_time_last;
 
+// ############################################################################
+// game components
 Screen game_screen;
 Input game_input;
+
+// ############################################################################
+// game sprite objects
 Sprite player_sprite;
 
 // ############################################################################
@@ -191,6 +215,7 @@ void game_draw()
 {
     cls(0, 0, 100);
 
+    tilemap_draw();
     player_draw();
     draw_backbuffer();
     flip();
@@ -208,6 +233,7 @@ void game_loop()
     bool is_game_running;
 
     player_init();
+    tilemap_init(40, 14, tilesheet);
 
     is_game_running = true;
 
@@ -516,4 +542,58 @@ void delta_time_update()
 {
     delta_time = (float)(SDL_GetTicks() - delta_time_last) / 1000.0f;
     delta_time_last = SDL_GetTicks();
+}
+
+// ############################################################################
+// GAME-TILEMAP FUNCTIONS
+// ############################################################################
+void tilemap_init(int width, int height, SDL_Texture *texture)
+{
+    // current position of the tilemap
+    tilemap.x = 0;
+    tilemap.y = 0;
+
+    // size of the tilemap
+    tilemap.width = width;
+    tilemap.height = height;
+
+    // tile sheet of the tilemap
+    tilemap.texture = texture;
+
+    // size of a tile
+    tilemap.tilesize = 16;
+
+    // size of the tilesheet
+    tilemap.tilesheet_width = 256;
+    tilemap.tilesheet_height = 256;
+
+    // calculate the position for each tile on the tilesheet
+    int c = 0;
+    for (int y = 0; y < tilemap.tilesheet_height / tilemap.tilesize; y++)
+    {
+        for (int x = 0; x < tilemap.tilesheet_width / tilemap.tilesize; x++)
+        {
+           tilemap.tile_postab[c] = x * tilemap.tilesize;
+           tilemap.tile_postab[c+1] = y * tilemap.tilesize;
+           c += 2;
+        }
+    }
+
+}
+
+void tilemap_draw()
+{
+    int tile_id = 2;
+    int tile_x, tile_y;
+
+    for (int y = 0; y < game_screen.height / tilemap.tilesize; y++)
+    {
+        for (int x = 0; x < game_screen.width / tilemap.tilesize; x++)
+        {
+            tile_x = tilemap.tile_postab[tile_id * 2];
+            tile_y = tilemap.tile_postab[tile_id * 2 + 1];
+
+            draw_subimage_rect(tilemap.texture, x * tilemap.tilesize, y * tilemap.tilesize, tilemap.tilesize, tilemap.tilesize, tile_x, tile_y);
+        }
+    }
 }
