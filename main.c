@@ -2,15 +2,11 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-<<<<<<< HEAD
+
 #define MAX_PLAYER_BULLETS 30
 
 const int GAME_WIDTH = 368;
 const int GAME_HEIGHT = 240;
-=======
-const int GAME_WIDTH = 320;
-const int GAME_HEIGHT = 256;
->>>>>>> feature/basic-game-engine
 const int GAME_SCALE = 3;
 
 // ############################################################################
