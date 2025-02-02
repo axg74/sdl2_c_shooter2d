@@ -1,6 +1,7 @@
 #include <SDL.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <sys/stat.h>
 
 const int GAME_WIDTH = 320;
 const int GAME_HEIGHT = 256;
@@ -34,6 +35,8 @@ void draw_backbuffer(void);
 SDL_Texture* load_bmp(char *filename);
 void unload_bmp(SDL_Texture *texture);
 void draw_subimage_rect(SDL_Texture *texture, int x, int y, int width, int height, int source_x, int source_y);
+
+int get_filesize(const char* filename);
 
 void delta_time_init(void);
 void delta_time_update(void);
@@ -621,4 +624,14 @@ void tilemap_draw()
                                tile_x, tile_y);
         }
     }
+}
+
+// ############################################################################
+// FILE-HANDLING FUNCTIONS
+// ############################################################################
+int get_filesize(const char* filename)
+{
+    struct stat st;
+    stat(filename, &st);
+    return st.st_size;
 }

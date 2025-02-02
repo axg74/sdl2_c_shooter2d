@@ -445,8 +445,9 @@
 	"begin_code.h"
 	"close_code.h"
 
-1738509258 source:c:\users\alexa\documents\gamedev\sdl\sdl2_c_shooter2d\main.c
+1738519187 source:c:\users\alexa\documents\gamedev\sdl\sdl2_c_shooter2d\main.c
 	<SDL.h>
 	<stdbool.h>
 	<stdio.h>
+	<sys/stat.h>
 
